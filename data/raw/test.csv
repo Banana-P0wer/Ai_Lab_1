@@ -1,0 +1,432 @@
+﻿message;is_toxic
+it doesn’t look right;1
+this looks like cr@p;1
+what the f*ck are you talking about;1
+That is a MOFO;1
+eat $hit;1
+WTF!;1
+WTH;1
+"Ah! Okay. New plan:
+ 
+ Add the following to the top of GinPort::InvalidateEvents():
+ 
+ void GinPort::InvalidateEvents(v8::Local<v8::Context> context) {
+  // No need to invalidate the events if the context itself was already
+  // invalidated; the APIEventHandler will have already cleaned up the
+  // listeners.
+  if (state_ == kInvalidated)
+  return;
+ 
+  ...
+ }
+ 
+ Then, (I think) we shouldn't need any special workarounds either here or in the test's JS file. Mind giving that a try?";0
+"Ah, how about using:
+ 
+ const bool region_dump = (argc == 9);
+ if (region_dump) {
+  ...
+ } else {
+  area_size = screen_size;
+ }";0
+"Ah, I did test both and both pass. Looking at the test, of course if first is already false when we start the test, we never set visible to false, and of course commit will be executed.
+ 
+ Fixed.";0
+Ah, I didn't realize IsActive takes an Error... Yuck, maybe go back to you previous version... But then again, see comment below -- this check should probably go away.;1
+"Ah, I had tried that but got various build errors regarding libprotobuf-mutator, so wasn't sure whether that CL is supposed to build at all.
+
+Here's the error FWIW (it's possible I'm doing something stupid, I'm not too familiar with platform/ec):
+
+(cr) ((e43b469f3...)) mnissler@toroa ~/trunk/src/platform/ec $ (BOARD=cr50; make -j buildfuzztests)                                 
+  BUILD   host-cr50_fuzz                                                                                                            
+  BUILD   host-host_command_fuzz                                                                                                    
+make[1]: 'build/host/host_command_fuzz/host_command_fuzz.exe' is up to date.                                                        
+make obj=/mnt/host/source/src/platform/ec/build/host/cr50_fuzz/cryptoc SUPPORT_UNALIGNED=1 \                                        
+        CONFIG_UPTO_SHA512=y -C /mnt/host/source/src/third_party/cryptoc
+make[2]: '/mnt/host/source/src/platform/ec/build/host/cr50_fuzz/cryptoc/libcryptoc.a' is up to date.                                
+  CXX     RW/fuzz/cr50_fuzz.o                                                                                                       
+fuzz/cr50_fuzz.cc:14:10: fatal error: 'src/libfuzzer/libfuzzer_macro.h' file not found                                              
+#include <src/libfuzzer/libfuzzer_macro.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.                                                                                                                  
+make[1]: *** [Makefile.rules:444: build/host/cr50_fuzz/RW/fuzz/cr50_fuzz.o] Error 1                                                 
+make: *** [Makefile.rules:336: host-cr50_fuzz] Error 2";0
+Ah, I missed this comment. This may be why we see issues, in StateManagerGL it will sync the active program before syncing the transform feedback so no, it wont go back and reset the program to the correct one for the upcoming draw call. You should reset it here, changing GL state while syncing dirty bits is one place we need to be careful.;0
+"Ah, I see, you'd have to change cros_set_lsb_release to treat """" and None the same way.
+ 
+ Up to you.";0
+ah, i see. yeah, that's ugly. fine by me to keep it the way you have it;0
+"ah, I thought you were referring to `null instanceof ClassA`
+
+I will add sensitivity to nullchecks in a follow up.";0
+"Ah, no. It just my stupidity (and lack of tests which I'm about to write).
+
+So, would you prefer _entry(role=None, roles=None, ...) or _entry(roles, ...) and checking type(role) == 'list'? Both a bit weird... Like a have a feeling it would be unexpected for most that 'role' can actually be a list.";1
+Ah, right.  For some stupid reason, I didn't think i2c_dev->irq was valid until after devm_request_irq().  Nevermind then.;1
+Ah, right. I feel like I suck at shell scripting now.;1
+ah, right. you could ScopedFd::release in that case. that might seem more idiomatic than having two variables. unfortunately there's the fstat... yuck. i don't like any of the choices :-(;1
+ah, shit. will fix.;1
+"Chatted offline with norvez@ ahassani@. It looks like REQUIRED_USE=""dlc"" suits fine to the purpose - fail to build. However, we move the REQUIRED_USE=""dlc"" to test-dlc.ebuild and dummy-dlc.ebuild to avoid pollute this global ebuild.";0
+Cheat code: You're not *required* to have full blown docstrings in private functions. So you can drop something if you think it's not adding value.;0
+check functionDecl->getCanonicalDecl()->getLocation() != functionDecl->getLocation() to avoid useless notes;0
+check HasStylusInput somewhere so watcher_ is never started for devices that will never see a stylus;0
+Check if the JIT is enabled then. It sucks to not have coverage.;1
+Check if we get postamble where all pixels are black.;0
+CHECK triggers abort() internally when matched, which might be a bit too aggressive.  I just verified that all inputs on framework side are coming from internal sources, so we might be okay with the daemon being kicked and restarted.;0
+check yourself before you wreck yourself...;1
+CHECK(pid != -1)?;0
+"checkImage(); should be below buildStatusPanel();
+
+loadSupport();
+
+buildImageViewer();
+
+buildStatusPanel();
+
+checkImage();";0
+Checking the _REG_PAGE_COUNT register is more reliable. Raising an exception skips the following StopDumpingToMemory call, meaning that the audio continues to dump.;0
+checkpatch hates all of these m_XXX macros;1
+checkpatch.pl failure. Since this is a cherry pick, we have to ignore this.;0
+"child here should be a plain CBB, so:
+ 
+ bssl::ScopedCBB output_cbb;
+ CBB child;";0
+"child here should be a plain CBB, so:
+
+bssl::ScopedCBB output_cbb;
+CBB child;";0
+child_inline_direction is a GridTrackSizingDirection enum, while what we need to pass is a GridAxis enum.;0
+chown chronos $SWAP_FIELD_TRIAL_ENROLLED;0
+chown chronos $SWAP_FIELD_TRIAL_FORCED $SWAP_ENABLE_FILE;0
+"chromite.cros.commands.* contradicts that. :)
+
+Find stays, although an os.walkdirs or similar perhaps (the find was used since it's far simpler than the walkdirs crap, imo).";1
+ChunkedCopy() and friends/I hate gerrit/you probably searched for the use and it didn't show any results because gerrit's code review view is functionally retarded.;0
+"Cleaner: Use Ref (com.intellij.openapi.util.Ref) instead. e.g.
+final Ref<Boolean> result = new Ref<Boolean>(false);
+...
+ref.set(true)
+...
+return ref.get()";0
+"CleanupTabNodes() triggers garbage collection and expects that the caller not only passes in |deleted_node_ids|, but also that the caller will actually honor the decided garbage collection (i.e. send tombstones). This is not possible for some calling sites, in particular the scenario being fixed here (during restore), at least in the current implementation.
+ 
+ In future patches, I'd split and rename these functions to something like:
+ - CleanupSession() --> FreeUnmappedTabs(), which does no sync GC.
+ - GarbageCollectFreeLocalTabNodes(std::set<int>* deleted_node_ids), which will trigger GC of sync entities and generate (on the calling site) tombstones.";0
+Clearly the ordering was not correct as before. Some comments are warranted w.r.t. the order of operations and the dependencies between them.;0
+"CloneGtRepo goes w/in the try block, else there's a race where hit right, it leaves crap behind when it shouldn't.
+
+also, set wipe=True here
+
+Also, you're *so fricking close* to support references here- it's 5 lines or so.
+
+Part of the reason I think you should do it now is that the underlying patch.fetch code is smart enough to skip the network unless necessary; further, if you did patch.fetch(original_repo), your new repo would have the sha1, but the original content would be stored in the referenced repo- meaning no need to fetch again on a subsequent run (aka, if the patching failed).";1
+"Close. I don't think ProjectSpec is the right place - I think keeping that ""dumb"" parsing based only on the schema is good.
+
+This is Yet Another Thing that I think would do well in a Project class (I think we've talked before about this? A class that wraps the schema + commands, so the commands could basically do
+  p = Project(...)
+  p.BuildImage()
+etc.?)
+
+For now I'd lean towards getting it in, but if we want to start that refactor now we could.";0
+Co*n*verts;0
+"Code doesn't compile on windows.
+
+frameworks/compile/slang/slang_rs_export_foreach.cpp:87:2: error: extra ';' [-Werror=pedantic]
+ };
+  ^
+cc1plus: all warnings being treated as errors
+make[1]: *** [out/host/windows-x86/obj32/EXECUTABLES/llvm-rs-cc_intermediates/slang_rs_export_foreach.o] Error 1
+make[1]: *** Waiting for unfinished jobs....";0
+"Code is cleaner without 'i' variable I think. How about ""for (af = gpio_alt_funcs; af < gpio_alt_funcs + gpio_alt_funcs_count; af++) {"" ?";0
+Code was moved. I agree that magic constants suck.;1
+Collateral damage from juggling branches. I got rid of it.;0
+combine with prior statement, and kill extranaeous empty line.;0
+comma in previous line;0
+Comment is misaligned, and should say uint32_t usr_len now.;0
+comment style - multi-line comments like this should go before the line in question;0
+comment that it is padded to 64KB (is that right?);0
+"comment what these bools stand for
+e.g. /* is_native */";0
+"compatible_specific_boards = compatible_boards.difference(cbuildbot_config.generic_boards)
+
+Use .difference, and negatives in var names suck. :P";1
+Compile the boot image with and without, and dump the init-failures. (--dump-init-failures=x.log). Compare, and if necessary, open a bug. Don't leave a TODO here.;0
+Compiler does not like setting non-primitives (object or array) on the prototype object. These sorts of static objects should be on the static class.;0
+Complain very loudly if this happens.  This file is machine generated and lives on a read-only partition, so if it's malformed then something terrible has happened.;0
+Complicated. Why not wait here, like discussed, and fork/sleep/kill -9 just before?;0
+"compute and assign os.path.join(upstream_pkgdir... to a var, rather than redundancies here.  Sounds stupid/minor, but having it in one spot makes it harder to miss updating it ;)";1
+ComputeMinObjectSlack would require some ugly const-casting. Fixed the other one.;1
+Computers do suck.;1
+"ConcurrentCopying* const collector_;";0
+CONFIG_FTRACE is expensive and not necessary for systrace.  All you need is CONFIG_SCHED_TRACER.;0
+cONFIG_NIC3COM should be CONFIG_NIC3COM;0
+Confirmed that this works fine in dumb mode via (Internal Actions | Enter Dumb mode);0
+consecutive_ready_count = 0;0
+consider a parametrizing writeSms as with deleteSms.;0
+consider adding `--id=$$` so that the PID of this script instead of the logger process is logged.;0
+Consider adding a test for mousedown on the scrollbar, mouse up off the scrollbar. We should get the same GSB, GSU, GSE.;0
+Consider an enum class for cleanliness.;0
+Consider checking that in.dataAvail() == 0 at this point. (i.e., there's no trailing garbage.);0
+Consider iterating over StaticIPParameters::kProperties instead.;0
+"Consider moving |dhcp_properties| out of Properties. I'm a little wary of adding dynamic allocation to a struct's ctor, since I tend of think of structs as ""dumb"".
+
+And, with DhcpProperties itself being a composition of multiple fields, I feel like the two levels of nesting is more confusing than helpful.
+
+http://google-styleguide.googlecode.com/svn/trunk/cppguide.html#Structs_vs._Classes";0
+Consider Objects.toStringHelper;0
+"consider parameterizing these tests as they all seem to be duplicated for white and black (param would be white, black)
+
+also the comments seem like they belong above the TEST_F instead of inside the test body";0
+Consider using std::string* out that you only overwrite if GetString() is successful (see below).;0
+"Consider
+
+  const createApp = app_management.FakePageHandler.createApp;";0
+"Consider:
+ typedef std::vector<uint8_t> ByteBuffer;";0
+considering the code exits immediately after, reason this isn't a cros_build_lib.Die ?;0
+"consolidate to one line
+
+allow netd self:netlink_tcpdiag_socket { create_socket_perms nlmsg_read nlmsg_write };";0
+"const as const can.. this should be
+
+ const SvxBoxItem*";0
+"const BootControlInterface* const boot_control;";0
+const MB_MODE_INFO *mbmi;0
+const std::string& to avoid an useless copy?;0
+"const struct bo_ops *bo_ops;";0
+const struct edid *edid;0
+const uint16_t* too.;0
+constexpr if possible. The brightest shade of pink is probably the most strand-out color I can think of.;0
+constexpr size_t kAlignment;0
+Container should be empty already, so need to remove?;0
+convert all subprocess to cros_build_lib.RunCommand;0
+correct -- this is how `gerrit` has always operated thus far.  i agree it's crappy behavior.;1
+Correct hash: 7e3b7dc76c41f9042a7079eb07d071f744bbd87a;0
+"Correct me if I'm wrong, but I think here what you want is
+
+ if xxx.encryption_type in [...]:
+   auth_fn = A
+ elif ...
+   auth_fn = B
+ else
+  auth_fn = C # _AuthenticateOpen
+
+Or, what about doing
+ authentication_methods = {
+   'wpa': self._AuthenticateWPA,
+  'wp2a': xxx,
+  'wep': xxx
+ }
+ auth_process = authentication_methods.get(self.ap.encrypt_type, self._AuthenticteOpen)";0
+Correct, they should be removed;0
+Correct. I let this be here to run the tests on the bot. For the final version, will remove this after the libaddressinput is updated.;0
+Correct. The consent is for make & model information about a token, not for individually-identifiable information. The only way to get the underlying attestation will be to list the RP ID in the enterprise policy, because that enables the individual attestation bit in the register request and permits individual attestation generally.;0
+correct. what the hell could anyone do with this accidentally-public detail of the old implementation?;1
+"correction, missed the lockless updating of tempfile.tempdir (guess what my next nit will be).  Also doesn't dumb ass programs that use TMP rather than TMPDIR.
+
+Final nit... this is duplicative of what tempdir_decorator is doing.";1
+"Could also use self._process.send_signal(..). I'm not sure what the difference is.
+
+Or if SIGTERM or SIGKILL is okay, self._process.terminate() / self._process.kill()";0
+could be a plain ImageRequest, also update the name to [thumbnail|image]Request or similar;0
+could have put it in the regexp using regexp.QuoteMeta, but whatever;0
+"Could mReadFramebuffer be null here if we do the following:
+ - Somehow dirty READ_FRAMEBUFFER
+ - setReadFramebufferBinding(nullptr)
+ - syncDirtyObjects()";0
+Could this be beforeNextRender() instead of after?;0
+"Could this just be `if (!input_events->input_events()->credit_card_field_edited)`?
+ 
+ (here and below)";0
+could use `die` instead;0
+Could we extract the interface and not have inner interfaces? It makes the code using them verbose and obnoxious to read, for no real benefit.;0
+"Could we git rid of query_suffix_?
+ Feels like we can use + base::UTF8ToUTF16(features::AnswerServerQuerySuffix()) at L89.
+ WDYT?";0
+"Could we just use a string here instead of std::vector<uint8_t>? It may be more convenient for our users.
+
+It kind of sucks that perf doesn't give us the buildid at mmap time. The problem is that the dso on disk could change and get remmap'd. That will break it since the key is the pathname...";1
+"Could we just use consistent units please?  It's kind of ridiculous to have different units for APIs from the same driver...
+
+Also, proper kernel comment style is:
+
+/*
+ * blah blah blah
+ */";0
+Could we make this conditional? dalvikvm uses libbacktrace, but adding llvm as a dependency for dalvikm sucks.;1
+Could you add a comment to describe why we shouldn't reach this?;0
+Could you add an || die to the end of this so that the build fails if the checkout fails;0
+"Could you add comment here for the LED status the you expect, like following:
+ 
+  system is ON: WHITE
+  system is OFF: OFF
+  system is in suspend: 1 sec of white, 1 sec of off";0
+could you add this too ?  emacs sucks :p;1
+"Could you change dump value as text and compare to string by EXPECT_STREQ() to make what this test does and see where do we fail by string diff.
+
+This is yet another code and We don't want to debug test code.";0
+"Could you check the returned value of pos?
+if pos:
+  pickle.dump()
+else:
+  ...";0
+Could you defer to kill launch, unless it is successfully returned.;0
+"Could you make this an enum? Something like
+```
+enum class ParseURLOriginRestrictions {
+  kNoRestrictions = 0,
+  kSameOriginOnly,
+};
+```";0
+"Could you name this something that indicates it concatenates the supplied KeyManagers with the defaults? Maybe something lame like ""createWithAdditionalKeyManagers""";0
+could you please make all local functions static instead? unnamed namespaces makes names ugly in the binary and in the debugger;0
+could you please make it a class instead? It's already .cpp, and it's used only in C++ files - why do we need to stick to ugly C interface?;0
+Could you remove this comment while you're here? It's nonsense given line 1115, and only makes code harder to understand.;0
+"Could you try to use ""WTF/Forward.h"" to avoid include ""WTFString.h"" in
+ header file?";0
+"Could you wrap in a function?
+
+defer func() {
+  cmd.Kill()
+  cmd.Wait()
+}()";0
+Couldn't figure out a great way of doing this :(;0
+"couldn't you can simplify all of this to:
+ bool call_service_manager_started_callback = !service_manager_context_;";0
+"Couldn't you just dereference the unique_ptrs, e.g. 
+*expiration_times_dictionary
+
+I might be missing something though.";0
+"couple of nits:
+- what needs to be destroyed? |this|?
+- avoid using first person pronouns in documentations.";0
+Coward! :-) CL:351570;1
+cppu, cppuhelper and salhelper are part of the URE stable ABI so we can't just remove them because C++ extensions require them to exist.;0
+CQ-DEPEND is backwards. #defining the new option in board.h must be done before we turn off code if it's not defined.;0
+crap yes of course since the loop is gone. sigh.;1
+crap yes.;1
+Crap! Done.;1
+"Crap!!
+
+So what happens is makefiles need tabs (stupid), and I have vscode to expand tabs to two spaces. I'll get this fixed up.";1
+Crap, I forgot about this other client of test_http_server... I'll take a look.;1
+crap, missed this comment, ill fix this in another cl;0
+"Crap, that should not be there. This was testing some -Weverything related warning (it thinks w and h are not initialized below, though all the paths satisfying base and png do initialize them).
+
+I might do a style pass and change all such C-style tests, but it's unrelated to actually fixing triggered warnings.";1
+crap, these aren't static because of the UT right?;1
+Crap.  C++ bites me in the ass again. :)  Fixed (and everywhere else I got this wrong).;1
+Crap.  Thank you.  Fixed now.;1
+"Crap.  Yep, should be; doesn't change the test results, just is annoying.";1
+crap. bizarre that i got the opposite one in each of these files!;1
+Crap. I didn't do that all over. Will up fix. Let' see if I can find them all.;1
+Crap. I meant say 'check for NULL' here.;1
+crap. i suspect we're really just papering over the real bug here.;1
+Crap. I turned if off to check something, and forgot to turn it back on. That explains why it 'passed' when PerformStage was wrong.;1
+Crap. I'll fix it and resubmit. Thanks.;1
+crap. it is. i actually thought it was just our file. i'll send a patch upstream.;1
+Crap. My assumption about duplex is just wrong. In addition to testing link state, what else do we need to check to create the right list?;1
+crap. our first LP64 turd in struct soinfo :-(;1
+Crap. Sorry about that. Done.;1
+Crap. Well, at least we don't have a C++17 compiler yet. :(;1
+"crap; specifically recall that I needed to do that, although apparently forgot to do so ;)";1
+crash_dump should not be allowed to ptrace itself;0
+create a new src_configure and move the econf call to that.  drop the `|| die` too.;0
+cros_build_lib.Die();0
+cros_build_lib.Die() again.;0
+"cros_build_lib.Die()
+
+then drop import sys";0
+"cros_build_lib.Die('Unknown value for ""cache_crx"" %s for %s', cache_crx, ids)";0
+CThread*;0
+ctor overload hell... not in this patch, but consider getting rid of the ctor overloads in favor of Init(), InitWithPaddingRect() (you'll need to define a rect struct or something), InitWithAlignment(). Or, a single Init that takes pointers and ignores NULLs.;1
+ctrbegin*, libc_init_*.cpp;0
+Curious as to why the caller is not also making use of a flat_set;0
+Current formatting looks ugly. How about pulling the code to a method then? A method will also prevent code duplication.;0
+current_action_ != nullptr?;0
+"Currently only wayland clients can put a window into the PIP window state - there's no public API like Maximize(), which leads to this ugly hack.
+
+Wrt TabletModeWindowManager - I believe so. I don't think there's any specific logic to make it not managed by it. The bounds themselves are managed by the client, however.";0
+"Curse you, clang-format!
+
+Done.";1
+cursed windows clipboard/done;1
+d0 ** 2 + d1 ** 2;0
+Da f*** is this?!?!;1
+dammit;1
+Dammit :(;1
+"dammit python... a compiled language wouldn't have allowed this
+
+thx";1
+Dammit!  Thanks again :/.;1
+dammit! thanks for keeping me honest :);1
+"Dammit, clearly I need more sleep.
+
+Fixed now.";1
+dammit, I guessed this wouldn't work :);1
+"Dammit, I somehow fixed it in the old file in a different copy of aosp.
+
+Fixed in the right place.";1
+dammit, new workspace config, due to dead HD...;1
+Dammit, python.;1
+Dammit.  As usual, you are correct.;1
+Dammit.  I hate the interface for that thing.  Too prone to copy and paste error that has no visible effect.  I'll fix this.;1
+dammit. hehe.;1
+dammit. I'll fix, upload and submit.;1
+damn;1
+damn :) Thanks for finding this.;1
+Damn I forgot about that. I'm gonna fix and chump.;1
+Damn it, how'd that slip through...;1
+damn it, I missed this bug in my review. I'll submit a follow up.;1
+Damn it, I swear I know how to speel this word.  Fixed.;1
+Damn it, that wasn't supposed to be there. I'll remove it.;1
+Damn it. Dead debug code I didn't quite sweep up.;1
+Damn it. How about 5?;1
+"Damn it. I thought I was using the one you always push for.
+
+They are randomized in my head now.";1
+Damn it...;1
+damn long name... shortening would be nice.;1
+"damn stupid script :P
+
+will fix.";1
+damn the mac!;1
+damn them!  thanks alex, I'll change it in the next round.;1
+Damn you :);1
+Damn you and your relevant nits.;1
+Damn you are absolutely correct. Clearly that was missed entirely. Well then meh.;1
+"Damn you are right. The suite scheduler uses the test names when pulling results and job names aren't a problem but the dashboard definitely uses this field. 
+
+Fixed!";1
+"Damn you're right, should be
+
+static constexpr uint32_t kBuiltinPrefix = (uint32_t('g') << 16) + (uint32_t('l') << 8) + uint32_t('_') ;
+uint32_t prefix = *reinterpret_cast<const uint32_t*>(name.c_str());
+return name.size() >= 4 && (prefix >> 8) == kBuiltinPrefix;";1
+Damn!  I thought I caught them all!;1
+Damn! This is so brilliant. Done. :);1
+damn, fixed;1
+Damn, forgot to delete this after the code changed during review... well, better to leave it here than to get inconsistent with ToT now I guess.;1
+"Damn, forgot to update the change description.  
+
+Anyho, in later thought, might be better to restore the FAIL() log so any one bringing up a new volume type, and developing a browser test for same, could get a tip on what browser test code they need to change.
+
+Talk about it next week.";1
+"Damn, good catch, I added that if() without thinking and my test just coincidentally happened to work.
+
+Fixed and added another test to cover that case.";1
+Damn, I knew I should have found an example without Java... Done.;1
+Damn, I miss clue as to what the variable contains :-);1
+damn, I'm really bad at this. Should not happen.;1
+Damn, I'm really sorry, worst typo ever. At least strict_cast saves the day. :);1
+Damn, thanks for checking this!;1
+damn, this conflicts with my change in progress :-(;1
+damn, this is no longer used, I'll remove that.;1
+Damn, we should not need this, I'll also take a look.;1
+damn, will get rid of this.;1
+Damn, yes I forgot that I'm no longer serializing the original AndroidProject and the reproxied version will always (incorrectly) succeed in deserialize. I've added the version check (not exactly sure I'm checking the right thing tho);1
+Damn, you're right :-/  Fixing.;1
+Damn, you're right. My bad, the alias table was even malformed, but this was hidden by the full resource table, which masked it completely. This is now fixed. Thanks for spotting this.;1
+Damn.;1
+Damn.  I could have sworn I tested that in the golo.  But you're right, it's not working for me.  I'll switch it.;1
