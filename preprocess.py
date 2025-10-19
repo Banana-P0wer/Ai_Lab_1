@@ -11,7 +11,9 @@ URL_EMAIL_RE = re.compile(r"https?://\S+|www\.\S+|\b[\w.+-]+@[\w-]+\.[\w.-]+\b",
 MULTISPACE_RE = re.compile(r"\s+")
 APOSTROPHE_RE = re.compile(r"[’`´ʹʻ]")
 REPEAT_CHAR_RE = re.compile(r"(?i)([a-z])\1{2,}")
-NON_TEXT_RE = re.compile(r"[^a-z0-9_ \t\n\.\,$begin:math:text$$end:math:text$$begin:math:display$$end:math:display$\{\}\-\#\+\:\;\/\=\<\>\!\%\*\'\"]", re.IGNORECASE)
+NON_TEXT_RE = re.compile(
+    r"[^a-z0-9_ \t\n\.\,$begin:math:text$$end:math:text$$begin:math:display$$end:math:display$\{\}\-\#\+\:\;\/\=\<\>\!\%\*\'\"]",
+    re.IGNORECASE)
 
 CONTRACTIONS = {
     "can't": "can not", "won't": "will not", "don't": "do not",
@@ -22,21 +24,25 @@ CONTRACTIONS = {
     "what's": "what is", "who's": "who is", "let's": "let us"
 }
 
+
 def load_lexicon(path: Path) -> set[str]:
     if not path.exists():
         return set()
     with path.open(encoding="utf-8") as f:
         return {line.strip().lower() for line in f if line.strip()}
 
+
 def normalize_unicode(s: str) -> str:
     s = html.unescape(s)
     s = unicodedata.normalize("NFKC", s)
     return APOSTROPHE_RE.sub("'", s)
 
+
 def expand_contractions(text: str) -> str:
     for k, v in CONTRACTIONS.items():
         text = re.sub(rf"(?i)\b{k}\b", v, text)
     return text
+
 
 def clean_text(text: str, profane_words: set[str], prog_words: set[str]) -> str:
     if not isinstance(text, str):
@@ -58,11 +64,13 @@ def clean_text(text: str, profane_words: set[str], prog_words: set[str]) -> str:
             tokens.append(REPEAT_CHAR_RE.sub(r"\1\1", tok))
     return MULTISPACE_RE.sub(" ", "".join(tokens)).strip()
 
+
 def load_csv(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path, sep=";", dtype={"message": "string", "is_toxic": "Int64"})
     if not {"message", "is_toxic"}.issubset(df.columns):
         raise ValueError(f"{path}: отсутствуют обязательные колонки 'message' и 'is_toxic'")
     return df
+
 
 def preprocess(df: pd.DataFrame, name: str, profane: set[str], prog: set[str]) -> tuple[pd.DataFrame, dict]:
     orig = len(df)
@@ -79,14 +87,17 @@ def preprocess(df: pd.DataFrame, name: str, profane: set[str], prog: set[str]) -
     }
     return df, stats
 
+
 def save_csv(df: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, sep=";", index=False, encoding="utf-8", quoting=csv.QUOTE_ALL)
+
 
 def print_stats(stats: dict) -> None:
     total = stats["class_0"] + stats["class_1"]
     ratio = stats["class_1"] / total if total else 0
     print(f"[{stats['dataset']}] {stats['final_rows']} строк | токсичных: {ratio:.3f}")
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
@@ -97,11 +108,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--lexicons", type=Path, default=Path("data/lexicons"))
     return p.parse_args()
 
+
 def process_dataset(in_path: Path, out_path: Path, name: str, profane: set[str], prog: set[str]) -> dict:
     df, stats = preprocess(load_csv(in_path), name, profane, prog)
     save_csv(df, out_path)
     print_stats(stats)
     return stats
+
 
 def main() -> int:
     args = parse_args()
@@ -120,6 +133,7 @@ def main() -> int:
         process_dataset(in_path, out_path, name, profane, prog)
     print("\nФайлы сохранены:\n ", args.train_out, "\n ", args.test_out)
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
