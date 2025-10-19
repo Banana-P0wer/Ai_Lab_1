@@ -1,3 +1,5 @@
+# импорт библиотек для парсинга, работы с csv, регулярных выражений, путей и pandas
+
 import argparse
 import csv
 import html
@@ -7,6 +9,7 @@ import unicodedata
 from pathlib import Path
 import pandas as pd
 
+# регулярные выражения для очистки данных: удаление ссылок, лишних символов и повторов
 URL_EMAIL_RE = re.compile(r"https?://\S+|www\.\S+|\b[\w.+-]+@[\w-]+\.[\w.-]+\b", re.IGNORECASE)
 MULTISPACE_RE = re.compile(r"\s+")
 APOSTROPHE_RE = re.compile(r"[’`´ʹʻ]")
@@ -15,6 +18,7 @@ NON_TEXT_RE = re.compile(
     r"[^a-z0-9_ \t\n\.\,$begin:math:text$$end:math:text$$begin:math:display$$end:math:display$\{\}\-\#\+\:\;\/\=\<\>\!\%\*\'\"]",
     re.IGNORECASE)
 
+# словарь для раскрытия сокращений (doesn’t → does not и т.п.)
 CONTRACTIONS = {
     "can't": "can not", "won't": "will not", "don't": "do not",
     "doesn't": "does not", "didn't": "did not", "shouldn't": "should not",
@@ -25,6 +29,7 @@ CONTRACTIONS = {
 }
 
 
+# функция загрузки словарей ругательств и технических слов
 def load_lexicon(path: Path) -> set[str]:
     if not path.exists():
         return set()
@@ -32,18 +37,21 @@ def load_lexicon(path: Path) -> set[str]:
         return {line.strip().lower() for line in f if line.strip()}
 
 
+# нормализация unicode: исправление апострофов и спецсимволов
 def normalize_unicode(s: str) -> str:
     s = html.unescape(s)
     s = unicodedata.normalize("NFKC", s)
     return APOSTROPHE_RE.sub("'", s)
 
 
+# раскрытие сокращений из словаря CONTRACTIONS
 def expand_contractions(text: str) -> str:
     for k, v in CONTRACTIONS.items():
         text = re.sub(rf"(?i)\b{k}\b", v, text)
     return text
 
 
+# основная функция очистки текста от ссылок, email, повторов и лишних символов
 def clean_text(text: str, profane_words: set[str], prog_words: set[str]) -> str:
     if not isinstance(text, str):
         return ""
@@ -65,6 +73,7 @@ def clean_text(text: str, profane_words: set[str], prog_words: set[str]) -> str:
     return MULTISPACE_RE.sub(" ", "".join(tokens)).strip()
 
 
+# чтение csv с обязательными колонками message и is_toxic
 def load_csv(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path, sep=";", dtype={"message": "string", "is_toxic": "Int64"})
     if not {"message", "is_toxic"}.issubset(df.columns):
@@ -72,6 +81,7 @@ def load_csv(path: Path) -> pd.DataFrame:
     return df
 
 
+# конвейер предобработки: очистка, фильтрация, подсчёт статистики
 def preprocess(df: pd.DataFrame, name: str, profane: set[str], prog: set[str]) -> tuple[pd.DataFrame, dict]:
     orig = len(df)
     df["message"] = df["message"].fillna("").astype(str)
@@ -88,17 +98,20 @@ def preprocess(df: pd.DataFrame, name: str, profane: set[str], prog: set[str]) -
     return df, stats
 
 
+# сохранение обработанного csv
 def save_csv(df: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, sep=";", index=False, encoding="utf-8", quoting=csv.QUOTE_ALL)
 
 
+# вывод статистики по датасету
 def print_stats(stats: dict) -> None:
     total = stats["class_0"] + stats["class_1"]
     ratio = stats["class_1"] / total if total else 0
     print(f"[{stats['dataset']}] {stats['final_rows']} строк | токсичных: {ratio:.3f}")
 
 
+# обработка аргументов командной строки
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--train-in", type=Path, default=Path("data/raw/train.csv"))
@@ -109,13 +122,14 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+# единая функция обработки: загрузка, очистка, сохранение и вывод статистики
 def process_dataset(in_path: Path, out_path: Path, name: str, profane: set[str], prog: set[str]) -> dict:
     df, stats = preprocess(load_csv(in_path), name, profane, prog)
     save_csv(df, out_path)
     print_stats(stats)
     return stats
 
-
+# основная функция очистителя: загрузка словарей, обработка train/test, сохранение файлов
 def main() -> int:
     args = parse_args()
     profane = load_lexicon(args.lexicons / "profane-words.txt")
@@ -135,5 +149,6 @@ def main() -> int:
     return 0
 
 
+# запуск при вызове из консоли
 if __name__ == "__main__":
     raise SystemExit(main())
